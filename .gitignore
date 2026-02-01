@@ -28,7 +28,7 @@ uv.lock
 Thumbs.db
 
 # Reports
-reports/*.pdf
+# reports/*.pdf
 
 # Environment
 .env
