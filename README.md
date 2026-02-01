@@ -222,9 +222,3 @@ Pull requests welcome! For major changes, please open an issue first.
 
 **Shriyans Kandhagatla**
 - Email: shriyans21k@gmail.com
-- LinkedIn: [Your LinkedIn]
-- GitHub: [Your GitHub]
-
----
-
-Built for Product Engineer interview at [Company Name]
