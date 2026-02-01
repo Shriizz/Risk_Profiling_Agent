@@ -1,0 +1,33 @@
+[project]
+name = "wealth-risk-profiler"
+version = "0.1.0"
+description = "AI-powered wealth management risk profiling chatbot"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.109.0",
+    "uvicorn>=0.27.0",
+    "agno>=0.1.0",
+    "ollama>=0.1.6",
+    "pydantic>=2.5.0",
+    "python-multipart>=0.0.6",
+    "fpdf2>=2.7.6",
+    "openai>=2.16.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# 👇 ADD THIS
+[tool.hatch.build.targets.wheel]
+packages = ["src/wealth_risk_profiler"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
+gradio = [
+    "gradio>=6.5.1",
+    "requests>=2.32.5",
+]
