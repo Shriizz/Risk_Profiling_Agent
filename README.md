@@ -20,15 +20,6 @@ User → FastAPI Backend → Ollama (llama3.2) → Risk Profile + PDF Report
 
 ## 📊 Demo
 
-### API Documentation
-![Swagger UI](screenshots/swagger-ui.png)
-
-### Example Conversation
-![Conversation Flow](screenshots/conversation.png)
-
-### Generated PDF Report
-![PDF Report](screenshots/pdf-report.png)
-
 ## 🚀 Quick Start
 
 ### 1. Install uv (if not already installed)
