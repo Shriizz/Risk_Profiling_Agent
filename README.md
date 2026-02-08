@@ -2,7 +2,6 @@
 
 AI-powered client onboarding system for wealth management firms built with FastAPI, Agno, and Ollama.
 
-![API Demo](screenshots/swagger-ui.png)
 
 ## 🎯 Features
 
@@ -29,7 +28,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 
 ### 2. Clone and Setup
 ```bash
-git clone <your-repo>
+git clone https://github.com/Shriizz/Risk_Profiling_Agent.git
 cd wealth-risk-profiler
 
 # Install dependencies

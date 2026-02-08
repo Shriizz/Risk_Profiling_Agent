@@ -1,12 +1,19 @@
 from fpdf import FPDF
 from datetime import datetime
 import os
+import glob
 
 
 class RiskProfilePDF(FPDF):
+    def __init__(self, version: int = 1):
+        super().__init__()
+        self.version = version
+    
     def header(self):
         self.set_font('Arial', 'B', 16)
         self.cell(0, 10, 'Wealth Management Risk Profile', 0, 1, 'C')
+        self.set_font('Arial', 'I', 10)
+        self.cell(0, 5, f'Version {self.version}', 0, 1, 'C')
         self.ln(5)
     
     def footer(self):
@@ -34,10 +41,44 @@ def clean_text(text: str) -> str:
     return text.strip()
 
 
-def generate_risk_profile_pdf(client_id: str, profile_data: dict) -> str:
-    """Generate PDF report from risk profile data"""
+def delete_old_versions(client_id: str, keep_latest: bool = True):
+    """
+    Delete old PDF versions for a client
+    If keep_latest is True, keeps only the most recent version
+    """
+    pattern = f'reports/risk_profile_{client_id}_v*.pdf'
+    files = sorted(glob.glob(pattern))
     
-    pdf = RiskProfilePDF()
+    if keep_latest and len(files) > 1:
+        # Delete all but the most recent
+        for old_file in files[:-1]:
+            try:
+                os.remove(old_file)
+                print(f"Deleted old version: {old_file}")
+            except Exception as e:
+                print(f"Error deleting {old_file}: {e}")
+
+
+def generate_risk_profile_pdf(
+    client_id: str, 
+    profile_data: dict,
+    version: int = 1,
+    keep_only_latest: bool = True
+) -> str:
+    """
+    Generate PDF report from risk profile data with version support
+    
+    Args:
+        client_id: Unique client identifier
+        profile_data: Dictionary containing risk profile information
+        version: Version number for this report
+        keep_only_latest: If True, deletes previous versions
+    
+    Returns:
+        Path to generated PDF file
+    """
+    
+    pdf = RiskProfilePDF(version=version)
     pdf.add_page()
     
     # Set margins to have more space
@@ -48,6 +89,14 @@ def generate_risk_profile_pdf(client_id: str, profile_data: dict) -> str:
     pdf.set_font('Arial', 'B', 14)
     pdf.cell(0, 10, f'Client ID: {client_id[:8]}...', 0, 1)
     pdf.ln(5)
+    
+    # Version Info (if edited)
+    if version > 1:
+        pdf.set_font('Arial', 'I', 10)
+        pdf.set_text_color(200, 0, 0)  # Red for edited versions
+        pdf.cell(0, 8, f'Profile Updated - Version {version}', 0, 1)
+        pdf.set_text_color(0, 0, 0)  # Reset to black
+        pdf.ln(3)
     
     # Risk Assessment
     pdf.set_font('Arial', 'B', 12)
@@ -113,9 +162,49 @@ def generate_risk_profile_pdf(client_id: str, profile_data: dict) -> str:
     else:
         pdf.cell(0, 8, 'No next steps available', 0, 1)
     
-    # Save PDF
+    # Add disclaimer for edited reports
+    if version > 1:
+        pdf.ln(10)
+        pdf.set_font('Arial', 'I', 8)
+        pdf.set_text_color(100, 100, 100)
+        pdf.multi_cell(
+            0, 5,
+            'Note: This is an updated version of your risk profile. '
+            'The analysis has been regenerated based on your corrected information.',
+            0, 'C'
+        )
+    
+    # Save PDF with version number
     os.makedirs('reports', exist_ok=True)
-    filename = f'reports/risk_profile_{client_id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
+    filename = f'reports/risk_profile_{client_id}_v{version}.pdf'
     pdf.output(filename)
     
+    # Optionally delete old versions
+    if keep_only_latest and version > 1:
+        delete_old_versions(client_id, keep_latest=True)
+    
     return filename
+
+
+def get_latest_report_version(client_id: str) -> int:
+    """
+    Get the version number of the latest report for a client
+    Returns 0 if no reports exist
+    """
+    pattern = f'reports/risk_profile_{client_id}_v*.pdf'
+    files = glob.glob(pattern)
+    
+    if not files:
+        return 0
+    
+    # Extract version numbers from filenames
+    versions = []
+    for file in files:
+        try:
+            # Extract version number from filename
+            version_str = file.split('_v')[1].split('.pdf')[0]
+            versions.append(int(version_str))
+        except:
+            continue
+    
+    return max(versions) if versions else 0
